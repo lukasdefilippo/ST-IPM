@@ -453,7 +453,7 @@ state_cast <- spread(data=state_cast, key=YEAR, value=RunSize)
 
 length(cast_pop)
 #Execute the stan model and plot output
-exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord, exec=FALSE, n_iter=1000, n_thin=1, n_adapt=0.8, n_tree=10, n_chain=3, plots=TRUE,
+exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord, exec=FALSE, n_iter=1000, n_thin=1, n_adapt=0.99, n_tree=10.25, n_chain=3, plots=TRUE,
                      sigma_esc = 0.2, mod_filename='LD_coho_forecast_6_2_4_fit', cast_pop=c(1:36)){
   
   #Create vector of basin identifiers for coastal and puget sound populations
@@ -666,6 +666,7 @@ exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord,
       cor_vec_lower_95[i] <- exp_func(d=dist[i], rho_dist=cred(rho_dist)[1], alpha_dist=cred(alpha_dist)[1])
       cor_vec_upper_95[i] <- exp_func(d=dist[i], rho_dist=cred(rho_dist)[2], alpha_dist=cred(alpha_dist)[2])
     }
+    
     par(mfrow=c(2,1), mar=c(0,0,0,0), oma=c(10,12,10,12))
     mat <- matrix(c(1,1,1,1,0,0,0,0,0,0,
                     2,2,2,2,0,3,0,4,0,5,
@@ -707,9 +708,10 @@ exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord,
     arrows((1), quantile(df_1$rho_dist, 0.025), 1, quantile(df_1$rho_dist, 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col=rgb(13, 82, 144, max = 255, alpha = 150))
     axis(side=4, at=seq(0,quantile(df_1$rho_dist, 0.98),0.5), labels=seq(0,quantile(df_1$rho_dist, 0.98),0.5)*10)
     mtext(side=1, expression(rho), line=1.0, at=1, cex=1.2)
-    mtext(side=4, 'Length Scale (KM)', line=2.5, cex=1)
+    mtext(side=4, 'Length Scale (km)', line=2.5, cex=1)
     text(x=1, y=0.35, 'E', cex=1.1)
     dev.off()
+    
     #plot correlation matrix
     corr_mat <- matrix(unlist(colMedian(df_1[,grep('corr_mat', colnames(df_1))])), nrow=n_pop, ncol=n_pop, byrow=FALSE)[cast_pop,cast_pop]
     colnames(corr_mat) <- unique(dat_list$coho_dat_full$Name)[cast_pop]
@@ -733,18 +735,18 @@ exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord,
     plot(1:n_pop_cast, colMedian(alpha), col='skyblue4', ylim=c(min(cred.2(alpha)[1,]),max(cred.2(alpha)[2,])), xlim=c(1,n_pop_cast), xaxt='n', yaxt='n', cex=1)
     axis(side=2, at=c(log(25), log(50), log(100), log(200), log(400), log(800), log(1600), log(3200), log(6400), log(6400*2), log(6400*4), log(6400*8)), labels = c(25, 50, 100, 200, 400,800,1600, 3200, 6400, 6400*2, 6400*4, 6400*8), las=2)
     mtext(side=2, expression(alpha), line=4.2, cex=1)
-    #text(x=n_pop_cast, y=log(4650), 'H', srt=90)
+    text(x=n_pop_cast, y=log(3650), 'H', srt=90)
     
     mtext(side=2, 'smolts/spawner', line=3.2, cex=0.85)
     arrows(1:n_pop_cast, cred.2(alpha)[1,], 1:n_pop_cast, cred.2(alpha)[2,], angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='skyblue4')
     arrows(1:n_pop_cast, cred.3(alpha)[1,], 1:n_pop_cast, cred.3(alpha)[2,], angle=90, code=3, length=0.0, lwd=3, lty=1, col='skyblue4')
     plot((n_pop_cast+1), median(df_1$mu_alpha), col='skyblue4', ylim=c(min(cred.2(alpha)[1,]),max(cred.2(alpha)[2,])), xaxt='n', yaxt='n',cex=1)
-    #text(x=n_pop_cast, y=log(4650), 'I', srt=90)
+    text(x=n_pop_cast, y=log(3650), 'I', srt=90)
     
     arrows((n_pop_cast+1), quantile(df_1$mu_alpha, 0.25), (n_pop_cast+1), quantile(df_1$mu_alpha, 0.75), angle=90, code=3, length=0.0, lwd=3, lty=1, col='skyblue4')
     arrows((n_pop_cast+1), quantile(df_1$mu_alpha, 0.025), (n_pop_cast+1), quantile(df_1$mu_alpha, 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='skyblue4')
     plot(n_pop_cast+1, median(df_1$sigma_alpha), col='skyblue4', ylim=c(quantile(df_1$sigma_alpha, 0.0), quantile(df_1$sigma_alpha, 0.995)), xaxt='n', yaxt='n',cex=1)
-    #text(x=n_pop_cast, y=1.27, 'J', srt=90)
+    text(x=n_pop_cast, y=1.225, 'J', srt=90)
     
     arrows((n_pop_cast+1), quantile(df_1$sigma_alpha, 0.25), (n_pop_cast+1), quantile(df_1$sigma_alpha, 0.75), angle=90, code=3, length=0.0, lwd=3, lty=1, col='skyblue4')
     arrows((n_pop_cast+1), quantile(df_1$sigma_alpha, 0.025), (n_pop_cast+1), quantile(df_1$sigma_alpha, 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='skyblue4')
@@ -753,35 +755,35 @@ exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord,
     axis(side=2, at=c(log(7), log(15),log(30),log(60), log(125), log(250), log(500), log(1000), log(2000), log(4000), log(8000)), labels = c(7, 15, 30, 60, 125, 250, 500,1000,2000,4000, 8000), las=2)
     mtext(side=2, expression('R'[max]), line=4.2, cex=1)
     mtext(side=2, 'smolts/KM', line=3.2, cex=0.85)
-    #text(x=n_pop_cast, y=log(3800), 'D', srt=90)
+    text(x=n_pop_cast, y=log(3800), 'D', srt=90)
     
     arrows(1:n_pop_cast, cred.2(R_max)[1,], 1:n_pop_cast, cred.2(R_max)[2,], angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='goldenrod')
     arrows(1:n_pop_cast, cred.3(R_max)[1,], 1:n_pop_cast, cred.3(R_max)[2,], angle=90, code=3, length=0.0, lwd=3, lty=1, col='goldenrod')
     plot((n_pop_cast+1), median(df_1$mu_R_max), col='goldenrod', ylim=c(min(cred.2(R_max)[1,]),max(cred.2(R_max)[2,])), xaxt='n', yaxt='n',cex=1)
-    #text(x=n_pop_cast, y=log(3800), 'E', srt=90)
+    text(x=n_pop_cast, y=log(3800), 'E', srt=90)
     arrows((n_pop_cast+1), quantile(df_1$mu_R_max, 0.25), (n_pop_cast+1), quantile(df_1$mu_R_max, 0.75), angle=90, code=3, length=0.0, lwd=3, lty=1, col='goldenrod')
     arrows((n_pop_cast+1), quantile(df_1$mu_R_max, 0.025), (n_pop_cast+1), quantile(df_1$mu_R_max, 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='goldenrod')
     plot(n_pop_cast+1, median(df_1$sigma_R_max), col='goldenrod', ylim=c(quantile(df_1$sigma_R_max, 0.0), quantile(df_1$sigma_R_max, 0.995)), xaxt='n', yaxt='n',cex=1)
-    #text(x=n_pop_cast, y=1.055, 'F', srt=90)
+    text(x=n_pop_cast, y=1.055, 'F', srt=90)
     arrows((n_pop_cast+1), quantile(df_1$sigma_R_max, 0.25), (n_pop_cast+1), quantile(df_1$sigma_R_max, 0.75), angle=90, code=3, length=0.0, lwd=3, lty=1, col='goldenrod')
     arrows((n_pop_cast+1), quantile(df_1$sigma_R_max, 0.025), (n_pop_cast+1), quantile(df_1$sigma_R_max, 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='goldenrod')
     axis(side=4)
     plot(1:n_pop_cast, colMedian(sigma_R), col='tan4', ylim=c(min(cred.2(sigma_R)[1,]),max(cred.2(sigma_R)[2,])), xlim=c(1,n_pop_cast), xaxt='n', yaxt='n',cex=1)
     axis(side=2, las=2)
     mtext(side=2, expression(sigma[R]), line=3.2, cex=1)
-    #text(x=n_pop_cast, y=1.375, 'A', srt=90)
+    text(x=n_pop_cast, y=1.375, 'A', srt=90)
     
     arrows(1:n_pop_cast, cred.2(sigma_R)[1,], 1:n_pop_cast, cred.2(sigma_R)[2,], angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='tan4')
     arrows(1:n_pop_cast, cred.3(sigma_R)[1,], 1:n_pop_cast, cred.3(sigma_R)[2,], angle=90, code=3, length=0.0, lwd=3, lty=1, col='tan4')
     axis(side=1, at=c(1:n_pop_cast), labels=unique(coho_dat_full$Name)[cast_pop], las=2, cex.axis=1.1)
     plot((n_pop_cast+1), median(exp(df_1$mu_sigma_R)), col='tan4', ylim=c(min(cred.2(sigma_R)[1,]),max(cred.2(sigma_R)[2,])), xaxt='n', yaxt='n', cex=1)
     mtext(side=1, expression(mu), line=1.0, las=3)
-    #text(x=n_pop_cast, y=1.375, 'B', srt=90)
+    text(x=n_pop_cast, y=1.375, 'B', srt=90)
     arrows((n_pop_cast+1), quantile(exp(df_1$mu_sigma_R), 0.25), (n_pop_cast+1), quantile(exp(df_1$mu_sigma_R), 0.75), angle=90, code=3, length=0.0, lwd=3, lty=1, col='tan4')
     arrows((n_pop_cast+1), quantile(exp(df_1$mu_sigma_R), 0.025), (n_pop_cast+1), quantile(exp(df_1$mu_sigma_R), 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='tan4')
     axis(side=4, at=c(log(10), log(25), log(50), log(100), log(250), log(500), log(1000)), labels = c(10,25, 50, 100, 250, 500,1000))
     plot(n_pop_cast+1, median(df_1$sigma_sigma_R), col='tan4', ylim=c(quantile(df_1$sigma_sigma_R, 0.005), quantile(df_1$sigma_sigma_R, 0.99)), xaxt='n', yaxt='n', cex=1)
-    #text(x=n_pop_cast, y=1.188, 'C', srt=90)
+    text(x=n_pop_cast, y=1.225, 'C', srt=90)
     mtext(side=1, expression(sigma), line=0.8, las=3)
     arrows((n_pop_cast+1), quantile(df_1$sigma_sigma_R, 0.25), (n_pop_cast+1), quantile(df_1$sigma_sigma_R, 0.75), angle=90, code=3, length=0.0, lwd=3, lty=1, col='tan4')
     arrows((n_pop_cast+1), quantile(df_1$sigma_sigma_R, 0.025), (n_pop_cast+1), quantile(df_1$sigma_sigma_R, 0.975), angle=90, code=3, length=0.01, lwd=1.5, lty=1, col='tan4')
@@ -1267,9 +1269,9 @@ exec_fun <- function(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord,
   return(mod_fit)
 }
 
-mod_fit <- exec_fun(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord, exec=FALSE, n_iter=10000, n_thin=1, n_adapt=0.99, n_tree=10.25, n_chain=5, plots=FALSE,
+mod_fit <- exec_fun(coho_dat_full=dat_list$coho_dat_full, coord=dat_list$coord, exec=FALSE, n_iter=20000, n_thin=1, n_adapt=0.99, n_tree=10.25, n_chain=5, plots=TRUE,
                     sigma_esc = 0.2, 
-                    mod_filename='LD_coho_forecast_6_2_4c_fit', cast_pop=c(cast_pop))
+                    mod_filename='LD_coho_forecast_6_2_4_full_fit', cast_pop=c(cast_pop))
 
 fit1.shiny <- as.shinystan(mod_fit)  
 launch_shinystan(fit1.shiny)
@@ -1302,6 +1304,11 @@ print(mod_fit, pars=c('log_adult_init'))
 print(mod_fit, pars=c('adult_pred'))
 
 df_1 <- as.data.frame(mod_fit)
+median(inv.logit(df_1$mu_mu_surv))
+quantile(inv.logit(df_1$mu_mu_surv), c(0.025, 0.975))
+median((df_1$sigma_mu_surv))
+quantile((df_1$sigma_mu_surv), c(0.025, 0.975))
+
 median(exp(df_1$mu_R_max))
 median(exp(df_1$mu_alpha))
 median(exp(df_1$mu_sigma_R))
@@ -1309,6 +1316,14 @@ median(exp(df_1$mu_sigma_R))
 quantile(exp(df_1$mu_sigma_R), c(0.025, 0.975))
 quantile(exp(df_1$mu_R_max), c(0.025, 0.975))
 quantile(exp(df_1$mu_alpha), c(0.025, 0.975))
+
+median((df_1$sigma_R_max))
+median((df_1$sigma_alpha))
+median((df_1$sigma_sigma_R))
+
+quantile((df_1$sigma_sigma_R), c(0.025, 0.975))
+quantile((df_1$sigma_R_max), c(0.025, 0.975))
+quantile((df_1$sigma_alpha), c(0.025, 0.975))
 
 unique(dat_list$coho_dat_full$Population)[order(colMedian(exp(df_1[,grep('log_alpha', colnames(df_1))])), decreasing=TRUE)]
 unique(dat_list$coho_dat_full$Population)[order(colMedian(exp(df_1[,grep('log_R_max', colnames(df_1))])), decreasing=TRUE)]
@@ -1581,10 +1596,20 @@ sim_func <- function(
   phi_sim <- colMedian(df_1[,grep('phi', colnames(df_1))])
   
   #Stock-recruit hyper parameters
-  mu_log_alpha_sim <- median(df_1$`gamma[1,1]`)
-  mu_log_R_max_sim <- median(df_1$`gamma[2,1]`)
-  sd_log_alpha_sim <- median(df_1$`tau[1]`)
-  sd_log_R_max_sim <- median(df_1$`tau[2]`)
+  #mu_log_alpha_sim <- median(df_1$`gamma[1,1]`)
+  mu_log_alpha_sim <- 4.25
+  
+  #mu_log_R_max_sim <- median(df_1$`gamma[2,1]`)
+  mu_log_R_max_sim <- 7.25
+  
+  
+  #sd_log_alpha_sim <- median(df_1$`tau[1]`)
+  sd_log_alpha_sim <- 0.45
+  
+ # sd_log_R_max_sim <- median(df_1$`tau[2]`)
+  sd_log_R_max_sim <- 0.65
+  
+  
   mu_sigma_R_sim <- median(df_1$mu_sigma_R)
   sigma_sigma_R_sim <- median(df_1$sigma_sigma_R)
   
@@ -1667,11 +1692,11 @@ sim_func <- function(
   
   #Generate S-R populations using multivariate normal distribution
   SR_sim <- rmvnorm(n_pop, mean= c(mu_log_alpha_sim, mu_log_R_max_sim), sigma=Omega_cov_sim)
+  #sigma_R_sim <- exp(rnorm(n_pop, mu_sigma_R_sim, sigma_sigma_R_sim)) 
   sigma_R_sim <- exp(rnorm(n_pop, mu_sigma_R_sim, sigma_sigma_R_sim)) 
   alpha_sim <- exp(SR_sim[,1])
-  R_max_pre_sim <- exp(SR_sim[,2])
   R_max_sim <- exp(SR_sim[,2])*aggregate(coho_dat_full$KM, by=list('Population'=coho_dat_full$Population), mean)$x
-  
+  R_max_pre_sim <- exp(SR_sim[,2])
   #Generate unobserved spawning populations
   adult_init_sim <- matrix(nrow=2, ncol=n_pop)
   adult_init_sim[1,]  <- colMedian(exp(df_1[,grep('log_adult_init', colnames(df_1))]))[seq(1, n_pop*2, 2)]
@@ -1751,7 +1776,7 @@ sim_func <- function(
   
   for(i in 1:n_year){
     for(j in 1:n_pop){
-      smolt_dat_sim[i,j] <- rlnorm(1, log(smolt_est_sim[i,j]), sigma_smolt_sim)
+      smolt_dat_sim[i,j] <- mean(rlnorm(1, log(smolt_est_sim[i,j]), sigma_smolt_sim))
       esc_dat_sim[i,j] <- rlnorm(1, log(adult_est_sim[i,j]), sigma_esc)
       catch_dat_sim[i,j] <- rlnorm(1, log(harvest_est_sim[i,j]), sigma_catch_sim)
       p_MS_dat_sim[i,j] <- rbeta(1, shape1=smolt_survival_adj_sim[i,j]*(K_sim-2)+1 , shape2=(1-smolt_survival_adj_sim[i,j])*(K_sim-2)+1)
@@ -2250,7 +2275,7 @@ mod_fit_sim <-exec_func_sim(coho_dat_sim=sim_list$coho_dat_sim, n_iter = 10000, 
 #Evaluate one step ahead forecast accuracy for a set number of years
 forecast_fun <- function(coho_dat_full=dat_list$coho_dat_full[dat_list$coho_dat_full$Calendar.Year<2018,],coord=dat_list$coord, n_range=16, exec=FALSE, exec_RW=FALSE,
                          n_iter = 2000, n_chains = 5, n_adapt=0.8, n_tree=10, n_thin=1,sigma_esc=0.2, plots=TRUE, cast_pop=c(cast_pop),
-                         form='RW', mode='state'){
+                         form='RW', mode='obs'){
   #Total number of years
   n_year <- length(unique(coho_dat_full$Calendar.Year))
   
@@ -2307,7 +2332,7 @@ forecast_fun <- function(coho_dat_full=dat_list$coho_dat_full[dat_list$coho_dat_
     for(i in 1:n_range){
       obs_list[[i]] <- vector(length=n_pop)
     }
-    mod_fit <- readRDS('LD_coho_forecast_6_2_4c_fit.rds')
+    mod_fit <- readRDS('LD_coho_forecast_6_2_4_fit.rds')
     df_1 <- as.data.frame(mod_fit)
     esc_est <- exp(df_1[,grep('log_adult_est', colnames(df_1))])
     harvest_est <- exp(df_1[,grep('log_harvest_est', colnames(df_1))])
@@ -2565,7 +2590,7 @@ forecast_fun <- function(coho_dat_full=dat_list$coho_dat_full[dat_list$coho_dat_
 
 coho_forecast_RW <- forecast_fun(coho_dat_full=dat_list$coho_dat_full[dat_list$coho_dat_full$Calendar.Year<2018,],coord=dat_list$coord, n_range=16, exec=FALSE, exec_RW=FALSE,
                               n_iter = 2000, n_chains = 5, n_adapt=0.8, n_tree=10, n_thin=1, sigma_esc=0.2, plots=TRUE, cast_pop=c(cast_pop),
-                              form='RW', mode='state')
+                              form='RW', mode='obs')
 
 coho_forecast_AR <- forecast_fun(coho_dat_full=dat_list$coho_dat_full[dat_list$coho_dat_full$Calendar.Year<2018,],coord=dat_list$coord, n_range=16, exec=FALSE, exec_RW=FALSE,
                                  n_iter = 2000, n_chains = 5, n_adapt=0.8, n_tree=10, n_thin=1, sigma_esc=0.2, plots=TRUE, cast_pop=c(cast_pop),
@@ -2611,10 +2636,10 @@ ASE_mat_MA <- matrix(ncol=n_pop, nrow=n_range)
 
 for(i in 1:n_pop){
   ASE_mat_ST[,i] <- unlist(lapply(coho_forecast_RW$ASE, function(x) x[i]))
-  ASE_mat_RW[,i] <- unlist(lapply(coho_forecast_RW$RW_ASE, function(x) x[i]))
-  ASE_mat_RW_fit[,i] <- unlist(lapply(coho_forecast_RW$RW_fit_ASE, function(x) x[i]))
-  ASE_mat_AR[,i] <- unlist(lapply(coho_forecast_AR$RW_fit_ASE, function(x) x[i]))
-  ASE_mat_MA[,i] <- unlist(lapply(coho_forecast_MA$RW_fit_ASE, function(x) x[i]))
+  #ASE_mat_RW[,i] <- unlist(lapply(coho_forecast_RW$RW_ASE, function(x) x[i]))
+  #ASE_mat_RW_fit[,i] <- unlist(lapply(coho_forecast_RW$RW_fit_ASE, function(x) x[i]))
+  #ASE_mat_AR[,i] <- unlist(lapply(coho_forecast_AR$RW_fit_ASE, function(x) x[i]))
+  #ASE_mat_MA[,i] <- unlist(lapply(coho_forecast_MA$RW_fit_ASE, function(x) x[i]))
 }
 cast_pop <- cast_pop
 mean(ASE_mat_RW_fit[,cast_pop], na.rm=TRUE)
@@ -2693,7 +2718,7 @@ barplot(apply(ASE_mat_ST[,cast_pop], 2, mean, na.rm=TRUE), add=TRUE, horiz=TRUE,
 legend(x=0.6, y=4, pch=15, col=c(col=rgb(17,156,240, alpha=150, max=255 ), 'black', 
                                    rgb(red=col.vec_2[1,8],green=col.vec_2[2,8],blue=col.vec_2[3,8], alpha=200, max=255)),
        legend=c('ST-IPM', 'Published'), bty='n', pt.cex=2, cex=1)
-mtext(side=1, 'MASE', line=2.7, cex=0.85)
+mtext(side=1, 'Forecast error (MASE)', line=2.7, cex=0.85)
 dev.off()
 
 #MASE plot B --> sparklines of ASE over time 

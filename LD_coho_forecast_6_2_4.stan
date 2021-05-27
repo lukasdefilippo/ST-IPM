@@ -377,7 +377,7 @@ data{
 
 	//Priors for the means of the among-population distribution of S-R parameters. Values based on Barrowman et al (2003)
 	//alpha
-	gamma[1,1] ~ normal(4.27, 2);
+	gamma[1,1] ~ normal(4.27, 0.75);
 	//gamma[1,1] ~ normal(4.27, 5);
 
 	//R_max
